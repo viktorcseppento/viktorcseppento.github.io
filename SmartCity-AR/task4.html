@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+<script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+<body style="margin : 0; overflow: hidden;">
+<a-scene embedded arjs>
+    <a-assets>
+        <audio id="hiro_sound" src="assets/hiro.mp3" response-type="arraybuffer" autoplay="true" loop></audio>
+        <a-asset-item id="boombox"
+                      src="https://arjs-cors-proxy.herokuapp.com/https://raw.githack.com/KhronosGroup/glTF-Sample-Models/master/2.0/BoomBox/glTF/BoomBox.gltf"></a-asset-item>
+    </a-assets>
+
+    <!-- handle hiro marker -->
+    <a-marker preset="hiro">
+        <a-entity
+                scale="30 30 30"
+                gltf-model="#boombox"
+                animation="property: position; to:0 0.2 0; dur: 500; easing: linear; loop: true"
+        >
+        </a-entity>
+
+        <a-entity sound="src: #hiro_sound; volume: 1; loop: true">
+        </a-entity>
+    </a-marker>
+
+    <a-entity camera></a-entity>
+</a-scene>
+</body>
+</html>
