@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+<script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+<script>
+    AFRAME.registerComponent('hirovideohandler', {
+        tick: function () {
+            const video = document.querySelector("#hiro_video");
+            if (document.querySelector('#hiro_marker').object3D.visible === true) {
+                video.play();
+            } else {
+                video.pause();
+            }
+        }
+    });
+
+</script>
+<body style="margin : 0; overflow: hidden;">
+<a-scene embedded arjs>
+    <a-assets>
+        <video id="hiro_video" src="assets/hiro.mp4" response-type="arraybuffer" preload="auto"></video>
+        <a-asset-item id="boombox"
+                      src="https://arjs-cors-proxy.herokuapp.com/https://raw.githack.com/KhronosGroup/glTF-Sample-Models/master/2.0/BoomBox/glTF/BoomBox.gltf"></a-asset-item>
+    </a-assets>
+
+    <!-- handle hiro marker -->
+    <a-marker preset="hiro" id="hiro_marker">
+        <a-entity
+                scale="30 30 30"
+                gltf-model="#boombox"
+                animation="property: position; to:0 0.2 0; dur: 300; easing: linear; loop: true"
+        >
+        </a-entity>
+
+        <a-video video="src: #hiro_video; loop: true" rotation='0 0 0' scale="2 2 2" hirovideohandler></a-video>
+    </a-marker>
+
+    <a-entity camera></a-entity>
+</a-scene>
+</body>
+</html>
