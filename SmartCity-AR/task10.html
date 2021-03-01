@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <!-- we import arjs version without NFT but with marker + location based support -->
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <!-- this part defines the playback / control function and events -->
+    <script>
+        let fullscreen = 0;
+        let markerFound = 0;
+        let currentVideo;
+        // A button komponens csak az egyik marker-en van rajta, hogy csak egyszer fusson le a inicializációs lépés
+        AFRAME.registerComponent('button', {
+            init: function () {
+                let elem = document.documentElement;
+                let fullbutton = document.querySelector("#fullscreen");
+                let marker = [];
+                let video = [];
+                marker[0] = document.querySelector("#hiro_marker");
+                marker[1] = document.querySelector("#kanji_marker");
+                marker[2] = document.querySelector("#custom_marker");
+                video[0] = document.querySelector("#Video_Asset_0");
+                video[1] = document.querySelector("#Video_Asset_1");
+                video[2] = document.querySelector("#Video_Asset_2");
+                // Elején mindegyik videó áll
+                video[0].pause();
+                video[1].pause();
+                video[2].pause();
+                let button = document.querySelector("#mutebutton");
+                button.hidden = true;
+
+                for (let i = 0; i < 3; i++) {
+                    marker[i].addEventListener("markerFound", function (evt) {
+                        // Felismeréskor csak megjelenítjük a gombot és megjegyezzük a megfelelő videót
+                        markerFound = 1;
+                        currentVideo = video[i];
+                        button.hidden = false;
+                    });
+                    marker[i].addEventListener("markerLost", function (evt) {
+                        // Elvesztésnél leállítjuk, elnémítjuk a videót, gombot eltüntetjük
+                        markerFound = 0;
+                        currentVideo.pause();
+                        currentVideo.muted = true;
+                        button.innerHTML = "Play";
+                        button.hidden = true;
+                    });
+                }
+
+                // button for video play/pause
+                button.addEventListener("click", function (evt) {
+                    if (currentVideo.muted) {
+                        button.innerHTML = "Pause";
+                        currentVideo.muted = false;
+                        currentVideo.play();
+                    } else {
+                        button.innerHTML = "Play";
+                        currentVideo.muted = true;
+                        currentVideo.pause();
+                    }
+                });
+
+                // button for full screen
+                fullbutton.addEventListener("click",
+                    function (evt) {
+                        if (fullscreen === 0) {
+                            if (elem.requestFullscreen) {
+                                elem.requestFullscreen();
+                            } else if (elem.mozRequestFullScreen) {
+                                /* Firefox */
+                                elem.mozRequestFullScreen();
+                            } else if (elem.webkitRequestFullscreen) {
+                                /* Chrome, Safari and Opera */
+                                elem.webkitRequestFullscreen();
+                            } else if (elem.msRequestFullscreen) {
+                                /* IE/Edge */
+                                elem.msRequestFullscreen();
+                            }
+                            fullbutton.setAttribute("src", "assets/exit_fullscreen.png");
+                            fullscreen = 1;
+                        } else {
+                            if (document.exitFullscreen) {
+                                document.exitFullscreen();
+                            } else if (document.webkitExitFullscreen) {
+                                document.webkitExitFullscreen();
+                            } else if (document.mozCancelFullScreen) {
+                                document.mozCancelFullScreen();
+                            } else if (document.msExitFullscreen) {
+                                document.msExitFullscreen();
+                            }
+                            fullbutton.setAttribute("src", "assets/fullscreen.png");
+                            fullscreen = 0;
+                        }
+                    });
+            },
+        });
+    </script>
+</head>
+<body style='margin : 0; overflow: hidden; font-family: Monospace;'>
+<div style='position: absolute; bottom: 10px; right: 30px; width:100%; text-align: center; z-index: 1;'>
+    <button id="mutebutton" style='position: absolute; bottom: 10px' hidden>Play</button>
+</div>
+<div style='position: absolute; bottom: 5px; left: 30px; width:100%; text-align: right; z-index: 1;'>
+    <input type="image" id="fullscreen" src="assets/fullscreen.png"
+           style='position: absolute; bottom: 0; right: 35px;'/>
+</div>
+<a-scene embedded arjs="debugUIEnabled: false; sourceType: webcam" vr-mode-ui="enabled: false">
+    <a-entity id="mouseCursor" cursor="rayOrigin: mouse"
+              raycaster="objects: .intersectable; useWorldCoordinates: true;"></a-entity>
+    <a-assets>
+        <video id="Video_Asset_0" autoplay="false" loop crossorigin="anonymous" src="assets/hiro.mp4"
+               webkit-playsinline playsinline controls muted></video>
+        <video id="Video_Asset_1" autoplay="false" loop crossorigin="anonymous" src="assets/hiro1.mp4"
+               webkit-playsinline playsinline controls muted></video>
+        <video id="Video_Asset_2" autoplay="false" loop crossorigin="anonymous" src="assets/hiro2.mp4"
+               webkit-playsinline playsinline controls muted></video>
+    </a-assets>
+
+    <a-marker id="hiro_marker" preset="hiro" emitevents="true">
+        <a-video src="#Video_Asset_0" id="Video_0" class="intersectable" width="1" height="1" position="0 0 0"
+                 rotation="-90 0 0" color="#FFFFFF" transparent=False button></a-video>
+    </a-marker>
+    <a-marker id="kanji_marker" preset="kanji" emitevents="true">
+        <a-video src="#Video_Asset_1" id="Video_1" class="intersectable" width="1" height="1" position="0 0 0"
+                 rotation="-90 0 0" color="#FFFFFF" transparent=False></a-video>
+    </a-marker>
+    <a-marker id="custom_marker" preset='custom' type='pattern' emitevents="true" url='assets/pattern-apple.patt'>
+        <a-video src="#Video_Asset_2" id="Video_2" class="intersectable" width="1" height="1" position="0 0 0"
+                 rotation="-90 0 0" color="#FFFFFF" transparent=False></a-video>
+    </a-marker>
+    <a-entity camera></a-entity>
+</a-scene>
+</body>
+</html>
